@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-
-namespace ComicListener
+﻿namespace ComicListener
 {
-    class PdfComicFile : ComicFile
+    using System.IO;
+
+    public class PdfComicFile : ComicFile
     {
         public PdfComicFile(FileInfo fileObject) : base(fileObject)
         {
         }
 
-        public void ProcessSelf()
+        public new void ProcessSelf()
         {
-            //throw new NotImplementedException();
             return;
         }
 

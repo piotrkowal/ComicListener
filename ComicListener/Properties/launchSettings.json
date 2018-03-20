@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ComicListener": {
+      "commandName": "Project",
+      "commandLineArgs": "E:\\test"
+    }
+  }
+}

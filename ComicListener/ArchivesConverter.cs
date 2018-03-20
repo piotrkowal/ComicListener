@@ -1,23 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using SharpCompress.Archives.Zip;
-using SharpCompress.Common;
-using SharpCompress.Archives;
-using SharpCompress.Archives.Rar;
-using SharpCompress.Readers;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.IO.Compression;
-
-namespace ComicListener
+﻿namespace ComicListener
 {
-    class ArchivesConverter
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using System.IO.Compression;
+    using SharpCompress.Archives;
+    using SharpCompress.Archives.Rar;
+    using SharpCompress.Readers;
+    
+    public class ArchivesConverter
     {
-
-
+        // Converts input file to Zip Archieve
         public static void ConvertArchieveToZip(ComicFile file)
         {
+            // determine archieve format 
             try
             {
                 if (file.Extension == ".cbz" && file.HasProperExtenstion)
@@ -28,20 +26,24 @@ namespace ComicListener
                 {
                     ExtractRarArchive(file);
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.ToString());
-                Console.Read();
             }
 
+            // Check if exsists files that isn't similar to others
             string[] fileEntries = Directory.GetFiles(file.ExtractDirectoryPath);
             Dictionary<int, string> filesToMove = new Dictionary<int, string>();
+
+            // take first file to compare to other files from folder
             string testFile;
             try
             {
                 testFile = fileEntries[0];
             }
-            catch (Exception e)
+            catch
             {
                 return;
             }
@@ -52,17 +54,20 @@ namespace ComicListener
                 Console.WriteLine(similarity);
                 if (similarity < 0.90)
                 {
-                    if (fileEntries[i].Contains("variant") || fileEntries[i].Contains("Variant") || fileEntries[i].Contains("cover") || fileEntries[i].Contains("Cover")) { continue; }
+                    // check if it's variant cover -> TODO: do it in smarter way
+                    if (fileEntries[i].Contains("variant") || fileEntries[i].Contains("Variant") || fileEntries[i].Contains("cover") || fileEntries[i].Contains("Cover"))
+                    {
+                        continue;
+                    }
+
                     Directory.CreateDirectory(file.PathToDirectory + @"\ads\" + file.ExtractDirectoryName);
 
                     Console.WriteLine(fileEntries[i]);
-
                     filesToMove.Add(filesToMove.Count(), fileEntries[i]);
-
                 }
             }
 
-            Console.WriteLine(filesToMove.LongCount());
+            // if first file isn't similar to others
             if (filesToMove.LongCount() > fileEntries.LongCount() / 2)
             {
                 Console.WriteLine("Cośnie tak!");
@@ -73,10 +78,11 @@ namespace ComicListener
                 {
                     filesToMove.Add(0, testFile);
                 }
-
             }
+
             Console.WriteLine(filesToMove.LongCount());
 
+            // move files to ./ads/ folder
             if (filesToMove.Count() != 0)
             {
                 foreach (var fileToMove in filesToMove)
@@ -89,15 +95,15 @@ namespace ComicListener
                     }
                     catch (Exception e)
                     {
-
                         Console.WriteLine(e.Message);
                         Console.WriteLine(e.ToString());
                     }
                 }
             }
-
-            File.Delete(file.PathToDirectory + "\\" + file.FileName);
-            CreateZip(file.ExtractDirectoryPath, file.PathToDirectory+@"\"+ file.ExtractDirectoryName+".cbz");
+            
+            // delete old file, create new zip file from extracted path
+            TryToDelete(file.PathToDirectory + "\\" + file.FileName);
+            CreateZip(file.ExtractDirectoryPath, file.PathToDirectory + @"\" + file.ExtractDirectoryName + ".cbz");
             try
             {
                 Directory.Delete(file.ExtractDirectoryPath, true);
@@ -109,108 +115,15 @@ namespace ComicListener
                 Console.Read();
             }
         }
-        /*
-        public static void ConvertToZip(string path, string fileName, string dirName)
-        {
-            string pathToFiles = path + "\\tmp\\" + dirName;
-            string pathToZip = path + @"\" + dirName + ".cbz";
-            TryToDelete(path + "\\" + fileName);
-            CreateZip(pathToFiles, pathToZip, dirName);
-            Directory.Delete(pathToFiles, true);
-        }
-
-        public static void RecreateZip(string path, string fileName, string dirName)
-        {
-           
-            string pathToFiles = path + "\\tmp\\" + dirName;
-            string pathToZip = path +@"\"+ dirName+".cbz";
-            
-
-        }
-        */
+     
         public static void CreateZip(string pathToZip, string pathToSave)
         {
             pathToZip = pathToZip.TrimEnd();
-
             ZipFile.CreateFromDirectory(pathToZip, pathToSave);
-
-            //using (var archive = ZipArchive.Create())
-            //{
-            //    Console.WriteLine($"Creating zip");
-            //    archive.AddAllFromDirectory(pathToZip);
-            //    Console.WriteLine($"Saving zip");
-            //    try
-            //    {
-            //        archive.SaveTo(pathToSave, CompressionType.LZMA);
-
-            //    }
-            //    catch
-            //    {
-            //        return;
-            //    }
-            //}
         }
-        /*
-        public static void ExtractArchieve(ComicFile file)
-        {
-            RarArchive rarArchieve = new RarArchive();
-            ZipArchive zipArchive;
-            Console.WriteLine(file.GetType().ToString());
-            if (file.Extension == ".cbz")
-            {
-                zipArchive = ZipArchive.Open(file.PathToDirectory + "\\" + file.FileName);
-            }
-            else
-            {
-                rarArchieve = RarArchive.Open(file.ExtractDirectoryName);
-            }
-
-            var whichArchieve = rarArchieve. || zipArchive ? rarArchieve : zipArchive;
-            using (var archive = archieve3)
-            {
-                Directory.CreateDirectory(file.ExtractDirectoryName);
-                Console.WriteLine($"Creating dir {file.ExtractDirectoryName}");
-                try
-                {
-                    if (file.Extension == ".cbz")
-                    {
-                        ZipArchive test = archive.Entries.Where(s => !s.IsDirectory);
-
-                    }
-                    else
-                    {
-
-                    }
-
-
-                    foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
-                    {
-                        //we don't want any folder inside new archieve
-                        if (entry.IsDirectory)
-                        {
-                            continue;
-                        }
-
-                        entry.WriteToDirectory(file.ExtractDirectoryName.TrimEnd(), new ExtractionOptions()
-                        {
-                            ExtractFullPath = false,
-                            Overwrite = true
-                        });
-                        Console.WriteLine($"Extracting file {entry.Key}");
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                    return;
-                }
-            }
-
-        }*/
+      
         public static void ExtractRarArchive(ComicFile file)
         {
-
             Console.WriteLine(file.ExtractDirectoryPath);
             string pathToFile = file.PathToDirectory + "\\" + file.FileName;
 
@@ -223,17 +136,19 @@ namespace ComicListener
                 {
                     foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                     {
-                        entry.WriteToDirectory(file.ExtractDirectoryPath, new ExtractionOptions()
-                        {
-                            ExtractFullPath = false,
-                            Overwrite = true
-                        });
+                        entry.WriteToDirectory(
+                            file.ExtractDirectoryPath, 
+                            new ExtractionOptions()
+                            {
+                                ExtractFullPath = false,
+                                Overwrite = true
+                            });
                         Console.WriteLine($"Extracting file {entry.Key}");
                     }
-                } catch(Exception e) {
+                }
+                catch (Exception e)
+                {
                     Console.WriteLine(e.Message);
-                    Console.Beep();
-                    Console.Read();
                     return;
                 }
             }
@@ -253,20 +168,21 @@ namespace ComicListener
 
                     foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                     {
-
-                        entry.WriteToDirectory(file.ExtractDirectoryPath.TrimEnd(), new ExtractionOptions()
-                        {
-                            ExtractFullPath = false,
-                            Overwrite = true
-                        });
+                        entry.WriteToDirectory(
+                            file.ExtractDirectoryPath.TrimEnd(), 
+                            new ExtractionOptions()
+                            {
+                                ExtractFullPath = false,
+                                Overwrite = true
+                            });
                         Console.WriteLine($"Extracting file {entry.Key}");
                     }
                 }
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
-            
         }
 
         public static void TryToDelete(string filePath)
@@ -278,11 +194,10 @@ namespace ComicListener
                     File.Delete(filePath);
                     break;
                 }
-                catch
+                catch (Exception e)
                 {
-
+                    Console.WriteLine(e.Message);
                 }
-
             }
         }
     }

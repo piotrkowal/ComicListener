@@ -1,28 +1,27 @@
-﻿using System;
-using System.IO;
-using System.Collections;
-using SharpCompress.Archives.Zip;
-using SharpCompress.Common;
-using SharpCompress.Archives;
-using SharpCompress.Archives.Rar;
-using SharpCompress.Readers;
-using System.Linq;
-using SharpCompress.Writers;
-using FileTypeDetective;
-using System.Threading;
-using SharpCompress.Archives.Tar;
-using System.Collections.Generic;
-
-namespace ComicListener
+﻿namespace ComicListener
 {
-    class Program
+    using System;
+    using System.Linq;
+    using System.Threading;
+    using System.Collections.Generic;
+
+    public class Program
     {
-        public static Dictionary<int,Thread> ConverterThreads = new Dictionary<int,Thread>();
+        private static Dictionary<int, Thread> converterThreads = new Dictionary<int, Thread>();
+
         public static void Main(string[] args)
         {
-           // string arg = @"G:\Conv";
-            string arg = @"E:\test";
-            FilesProcessor jarvis = new FilesProcessor(arg);
+            string filesPath;
+            if (args.Length > 0)
+            {
+                filesPath = args[0];
+            }
+            else
+            {
+                filesPath = @"E:\test";
+            }
+
+            FilesProcessor jarvis = new FilesProcessor(filesPath);
             List<string> wynik = jarvis.ProcessSelf();
 
             while (true)
@@ -41,13 +40,11 @@ namespace ComicListener
 
             Console.WriteLine("\n Results:");
             foreach (var item in jarvis.Groups)
-                  Console.WriteLine(item.fileName+"   " + item.group);
+            {
+                Console.WriteLine(item.FileName + "   " + item.Group);
+            }
 
             Console.Read();
-
-
-
-
         }
     }
 }
