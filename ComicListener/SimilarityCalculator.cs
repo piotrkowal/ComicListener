@@ -4,29 +4,44 @@ using System.Text;
 
 namespace ComicListener
 {
-    class SimilarityCalculator
+    public class SimilarityCalculator
     {
         public static int ComputeLevenshteinDistance(string source, string target)
         {
-            if ((source == null) || (target == null)) return 0;
-            if ((source.Length == 0) || (target.Length == 0)) return 0;
-            if (source == target) return source.Length;
+            if ((source == null) || (target == null))
+            {
+                return 0;
+            }
+
+            if ((source.Length == 0) || (target.Length == 0))
+            {
+                return 0;
+            }
+
+            if (source == target)
+            {
+                return source.Length;
+            }
 
             int sourceWordCount = source.Length;
             int targetWordCount = target.Length;
 
             // Step 1
             if (sourceWordCount == 0)
+            {
                 return targetWordCount;
+            }
 
             if (targetWordCount == 0)
+            {
                 return sourceWordCount;
+            }
 
             int[,] distance = new int[sourceWordCount + 1, targetWordCount + 1];
 
             // Step 2
-            for (int i = 0; i <= sourceWordCount; distance[i, 0] = i++) ;
-            for (int j = 0; j <= targetWordCount; distance[0, j] = j++) ;
+            for (int i = 0; i <= sourceWordCount; distance[i, 0] = i++);
+            for (int j = 0; j <= targetWordCount; distance[0, j] = j++);
 
             for (int i = 1; i <= sourceWordCount; i++)
             {
@@ -51,12 +66,24 @@ namespace ComicListener
         /// </summary>
         public static double CalculateSimilarity(string source, string target)
         {
-            if ((source == null) || (target == null)) return 0.0;
-            if ((source.Length == 0) || (target.Length == 0)) return 0.0;
-            if (source == target) return 1.0;
+            if ((source == null) || (target == null))
+            {
+                return 0.0;
+            }
+
+            if ((source.Length == 0) || (target.Length == 0))
+            {
+                return 0.0;
+            }
+
+            if (source == target)
+            {
+                return 1.0;
+            }
 
             int stepsToSame = ComputeLevenshteinDistance(source, target);
-            return (1.0 - ((double)stepsToSame / (double)Math.Max(source.Length, target.Length)));
+            var finalValue = 1.0 - ((double)stepsToSame / (double)Math.Max(source.Length, target.Length));
+            return finalValue;
         }
     }
 }

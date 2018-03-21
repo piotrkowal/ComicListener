@@ -26,7 +26,7 @@
 
             while (true)
             {
-                if (jarvis.ifEndedAll())
+                if (jarvis.IfEndedAll())
                 {
                     for (var i = 0; i < wynik.Count(); i++)
                     {

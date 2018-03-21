@@ -16,6 +16,5 @@
         public string OriginalSize { get; set; }
 
         public string OriginalFormat { get; set; }
-
     }
 }

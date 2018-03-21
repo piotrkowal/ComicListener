@@ -16,7 +16,7 @@
 
         public Dictionary<string, string> GroupOfFiles { get; set; }
 
-        public List<Container> Groups;
+        public List<Container> Groups { get; private set; }
 
         public static int LimitOfConversionAtOnce { get; set; }
 
@@ -81,7 +81,7 @@
                         Match match2 = regex.Match(secondString);
                         similarity = SimilarityCalculator.CalculateSimilarity(match.Value, match2.Value);
 
-                        if (Groups.Where(x => x.FileName == firstString).Count() == 0)
+                        if (this.Groups.Where(x => x.FileName == firstString).Count() == 0)
                         {
                             Container contOriginal = new Container(firstString);
 
@@ -89,10 +89,11 @@
                             {
                                 regex = new Regex(@"^\w+?(.|,|!)?[^(][^\d$]+");
                             }
+
                             match = regex.Match(firstString);
                             contOriginal.Group = match.Value.Trim();
                             Console.WriteLine("dodajemy original {0} - {1}", contOriginal.FileName, contOriginal.Group);
-                            Groups.Add(contOriginal);
+                            this.Groups.Add(contOriginal);
                         }
 
                         if (similarity > 0.50)
@@ -104,20 +105,16 @@
                             Container cont = new Container(secondString);
 
                             cont.Group = match.Value;
-                            if (Groups.Where(x => x.FileName == cont.FileName).Count() == 0)
+                            if (this.Groups.Where(x => x.FileName == cont.FileName).Count() == 0)
                             {
-                                Groups.Add(cont);
+                                this.Groups.Add(cont);
                             }
-
-
                         }
                     }
-
                 }
             }
 
-
-            for (int j = 0; j < FilesToGroup.Count(); j++)
+            for (int j = 0; j < this.FilesToGroup.Count(); j++)
             {
                 if (!excluded.Contains(j))
                 {
@@ -129,30 +126,27 @@
                     }
 
                     Match match = regex.Match(firstString);
-                    if (Groups.Where(x => x.FileName == firstString).Count() == 0)
+                    if (this.Groups.Where(x => x.FileName == firstString).Count() == 0)
                     {
                         Container contOriginal = new Container(firstString);
 
                         contOriginal.Group = match.Value;
                         Console.WriteLine("dodajemy original {0} - {1}", contOriginal.FileName, contOriginal.Group);
-                        Groups.Add(contOriginal);
+                        this.Groups.Add(contOriginal);
                     }
                 }
             }
 
             for (int i = 0; i < excluded.Count(); i++)
             {
-
                 Console.WriteLine(this.FilesToGroup[excluded[i]]);
             }
 
-            foreach (var file in Groups)
+            foreach (var file in this.Groups)
             {
                 Console.WriteLine(file.FileName + " - " + file.Group);
             }
         }
-
-
 
         // Process all files in the directory passed in, recurse on any directories 
         // that are found, and process the files they contain.
@@ -161,12 +155,16 @@
             // Process the list of files found in the directory.
             string[] fileEntries = Directory.GetFiles(targetDirectory);
             foreach (string fileName in fileEntries)
-                ProcessFile(fileName);
+            {
+                this.ProcessFile(fileName);
+            }
 
             // Recurse into subdirectories of this directory.
             string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory);
             foreach (string subdirectory in subdirectoryEntries)
-                ProcessDirectory(subdirectory);
+            {
+                this.ProcessDirectory(subdirectory);
+            }
         }
 
         public void ProcessFile(string path)
@@ -174,29 +172,32 @@
             // move all properties from obj file to ComicFile class
             FileInfo file = new FileInfo(path);
 
-            string tempDir = file.Name.Replace(file.Extension,"");
-            string dirName = string.Join("", tempDir);
+            string tempDir = file.Name.Replace(file.Extension, string.Empty);
+            string dirName = string.Join(string.Empty, tempDir);
 
             // omit certain folders and file's suffix
             // convert into .ini file with chosen phrases to filter
-            if (file.Extension == ".part" || file.Extension == ".ini"|| file.Directory.ToString().Contains("tmp") || file.Directory.ToString().Contains("ads"))
+            if (file.Extension == ".part" || file.Extension == ".ini" || file.Directory.ToString().Contains("tmp") || file.Directory.ToString().Contains("ads"))
             {
                 return;
             }
 
-            ComicFile fileToProcess = new CbzComicFile(file) ;
+            ComicFile fileToProcess = new CbzComicFile(file);
 
             // determine archieve type
             if (file.IsZip())
             {
                 fileToProcess = new CbzComicFile(file);
-            } else if (file.IsRar())
+            }
+            else if (file.IsRar())
             {
                 fileToProcess = new CbrComicFile(file);
-            } else if (file.IsPdf())
+            }
+            else if (file.IsPdf())
             {
                 fileToProcess = new PdfComicFile(file);
-            } else
+            }
+            else
             {
                 return;
             }
@@ -244,8 +245,8 @@
             }
         }
 
-        //  checks if all convertions ended
-        public bool ifEndedAll()
+        // checks if all convertion processes ended
+        public bool IfEndedAll()
         {
             var value = true;
             for (var i = 0; i < this.converterThreads.Count(); i++)
@@ -259,6 +260,7 @@
                     value &= false;
                 }
             }
+
             return value;
         }
     }
