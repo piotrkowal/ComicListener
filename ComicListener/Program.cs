@@ -8,7 +8,6 @@
     public class Program
     {
         private static Dictionary<int, Thread> converterThreads = new Dictionary<int, Thread>();
-
         public static void Main(string[] args)
         {
             string filesPath;
@@ -18,25 +17,23 @@
             }
             else
             {
-                filesPath = @"E:\test";
+                filesPath = @"~/test";
             }
 
             FilesProcessor jarvis = new FilesProcessor(filesPath);
             List<string> wynik = jarvis.ProcessSelf();
 
-            while (true)
-            {
-                if (jarvis.IfEndedAll())
-                {
-                    for (var i = 0; i < wynik.Count(); i++)
-                    {
-                        Console.WriteLine(wynik[i]);
-                    }
 
-                    jarvis.GroupArchieves();
-                    break;
+            if (jarvis.IfEndedAll())
+            {
+                for (var i = 0; i < wynik.Count(); i++)
+                {
+                    Console.WriteLine(wynik[i]);
                 }
+
+                jarvis.GroupArchieves();
             }
+
 
             Console.WriteLine("\n Results:");
             foreach (var item in jarvis.Groups)

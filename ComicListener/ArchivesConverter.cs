@@ -9,7 +9,7 @@
     using SharpCompress.Archives;
     using SharpCompress.Archives.Rar;
     using SharpCompress.Readers;
-    
+
     public class ArchivesConverter
     {
         // Converts input file to Zip Archieve
@@ -60,7 +60,7 @@
                         continue;
                     }
 
-                    Directory.CreateDirectory(file.PathToDirectory + @"\ads\" + file.ExtractDirectoryName);
+                    Directory.CreateDirectory(file.PathToDirectory + @"/ads/" + file.ExtractDirectoryName);
 
                     Console.WriteLine(fileEntries[i]);
                     filesToMove.Add(filesToMove.Count(), fileEntries[i]);
@@ -91,7 +91,7 @@
                     Console.WriteLine(movedFile.Name);
                     try
                     {
-                        movedFile.MoveTo(file.PathToDirectory + @"\ads\" + file.ExtractDirectoryName + @"\" + file.FileName);
+                        movedFile.MoveTo(file.PathToDirectory + @"/ads/" + file.ExtractDirectoryName + @"/" + file.FileName);
                     }
                     catch (Exception e)
                     {
@@ -100,10 +100,10 @@
                     }
                 }
             }
-            
+
             // delete old file, create new zip file from extracted path
-            TryToDelete(file.PathToDirectory + "\\" + file.FileName);
-            CreateZip(file.ExtractDirectoryPath, file.PathToDirectory + @"\" + file.ExtractDirectoryName + ".cbz");
+            TryToDelete(file.PathToDirectory + "//" + file.FileName);
+            CreateZip(file.ExtractDirectoryPath, file.PathToDirectory + @"/" + file.ExtractDirectoryName + ".cbz");
             try
             {
                 Directory.Delete(file.ExtractDirectoryPath, true);
@@ -115,17 +115,17 @@
                 Console.Read();
             }
         }
-     
+
         public static void CreateZip(string pathToZip, string pathToSave)
         {
             pathToZip = pathToZip.TrimEnd();
             ZipFile.CreateFromDirectory(pathToZip, pathToSave);
         }
-      
+
         public static void ExtractRarArchive(ComicFile file)
         {
             Console.WriteLine(file.ExtractDirectoryPath);
-            string pathToFile = file.PathToDirectory + "\\" + file.FileName;
+            string pathToFile = file.PathToDirectory + "//" + file.FileName;
 
             var archieve2 = RarArchive.Open(pathToFile);
             using (var archive = archieve2)
@@ -137,7 +137,7 @@
                     foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                     {
                         entry.WriteToDirectory(
-                            file.ExtractDirectoryPath, 
+                            file.ExtractDirectoryPath,
                             new ExtractionOptions()
                             {
                                 ExtractFullPath = false,
@@ -156,7 +156,7 @@
 
         public static void ExtractZipArchive(ComicFile file)
         {
-            string pathToFile = file.PathToDirectory + "\\" + file.FileName;
+            string pathToFile = file.PathToDirectory + "//" + file.FileName;
 
             try
             {
@@ -169,7 +169,7 @@
                     foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                     {
                         entry.WriteToDirectory(
-                            file.ExtractDirectoryPath.TrimEnd(), 
+                            file.ExtractDirectoryPath.TrimEnd(),
                             new ExtractionOptions()
                             {
                                 ExtractFullPath = false,

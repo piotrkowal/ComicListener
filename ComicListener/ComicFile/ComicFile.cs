@@ -7,7 +7,7 @@
         public ComicFile(FileInfo fileObject)
         {
             this.Extension = fileObject.Extension;
-            
+
             // path to file directory
             this.PathToDirectory = fileObject.Directory.ToString();
             this.FileName = fileObject.Name;
@@ -16,9 +16,9 @@
 
             // name of directory to extract archieve's content
             this.ExtractDirectoryName = tempDirectoryName;
-            
+
             // path to extract content of archieve
-            this.ExtractDirectoryPath = this.PathToDirectory + "\\tmp\\" + tempDirectoryName.Trim();
+            this.ExtractDirectoryPath = this.PathToDirectory + "/tmp/" + tempDirectoryName.Trim();
             this.CheckExtenstion();
         }
 
