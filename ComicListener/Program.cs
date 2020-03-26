@@ -30,15 +30,6 @@
                 {
                     Console.WriteLine(wynik[i]);
                 }
-
-                jarvis.GroupArchieves();
-            }
-
-
-            Console.WriteLine("\n Results:");
-            foreach (var item in jarvis.Groups)
-            {
-                Console.WriteLine(item.FileName + "   " + item.Group);
             }
 
             Console.Read();
