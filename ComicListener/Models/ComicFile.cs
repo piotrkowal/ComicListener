@@ -1,4 +1,4 @@
-﻿namespace ComicListener
+﻿namespace ComicListener.Models
 {
     using System.IO;
 
@@ -37,7 +37,7 @@
         public string ExtractDirectoryName { get; set; }
 
         // convert self to zip
-        public void ProcessSelf()
+        public void ConvertSelfToZip()
         {
             ArchivesConverter.ConvertArchieveToZip(this);
             return;

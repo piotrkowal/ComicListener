@@ -4,35 +4,19 @@
     using System.Linq;
     using System.Threading;
     using System.Collections.Generic;
+    using Serilog;
 
     public class Program
     {
-        private static Dictionary<int, Thread> converterThreads = new Dictionary<int, Thread>();
         public static void Main(string[] args)
         {
-            string filesPath;
-            if (args.Length > 0)
-            {
-                filesPath = args[0];
-            }
-            else
-            {
-                filesPath = @"~/test";
-            }
+            LoggerService.Log.Information("Hello, world!");
 
-            FilesProcessor jarvis = new FilesProcessor(filesPath);
-            List<string> wynik = jarvis.ProcessSelf();
+            string filesPath = args.Length > 0 ? args[0] : @"~/test";
 
+            PathProcessor jarvis = new PathProcessor(filesPath);
+            jarvis.ProcessPath(String.Empty);
 
-            if (jarvis.IfEndedAll())
-            {
-                for (var i = 0; i < wynik.Count(); i++)
-                {
-                    Console.WriteLine(wynik[i]);
-                }
-            }
-
-            Console.Read();
         }
     }
 }

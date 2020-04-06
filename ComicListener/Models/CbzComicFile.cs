@@ -1,4 +1,4 @@
-﻿namespace ComicListener
+﻿namespace ComicListener.Models
 {
     using System.IO;
 

@@ -9,6 +9,8 @@
     using SharpCompress.Archives;
     using SharpCompress.Archives.Rar;
     using SharpCompress.Readers;
+    using SharpCompress.Common;
+    using ComicListener.Models;
 
     public class ArchivesConverter
     {

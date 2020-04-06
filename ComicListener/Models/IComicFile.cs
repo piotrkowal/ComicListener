@@ -1,4 +1,4 @@
-﻿namespace ComicListener
+﻿namespace ComicListener.Models
 {
     public interface IComicFile
     {
@@ -11,5 +11,6 @@
         string ExtractDirectoryName { get; set; }
 
         bool HasProperExtenstion { get; set; }
+        public void ConvertSelfToZip();
     }
 }
