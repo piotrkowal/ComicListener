@@ -11,9 +11,7 @@
     using ComicListener.Models.DTO;
     public class PathProcessor
     {
-        private Dictionary<int, Thread> converterThreads = new Dictionary<int, Thread>();
-
-        public List<string> FilesToGroup { get; set; }
+        public Dictionary<int, Thread> converterThreads = new Dictionary<int, Thread>();
 
         public static int LimitOfConversionAtOnce { get; set; }
         public string PathToDir { get; set; }
@@ -21,7 +19,6 @@
         public PathProcessor(string pathToDir)
         {
             this.PathToDir = pathToDir;
-            this.FilesToGroup = new List<string>();
             PathProcessor.LimitOfConversionAtOnce = 4;
         }
 
@@ -78,43 +75,51 @@
                 return;
             }
 
-            IComicFile fileToProcess;
+            IComicFile fileToProcess = ComicsFileFactory.CreateNewComicObject(file);
 
-            // determine archieve type
-            if (file.IsZip())
-            {
-                fileToProcess = new CbzComicFile(file);
-            }
-            else if (file.IsRar())
-            {
-                fileToProcess = new CbrComicFile(file);
-            }
-            else if (file.IsPdf())
-            {
-                fileToProcess = new PdfComicFile(file);
-            }
-            else
-            {
-                return;
-            }
+            runConversionOfFile(fileToProcess);
 
+        }
+
+        public bool FilterFile(FileInfoDTO file, List<string> BannedExts, List<string> BannedWordsInPath)
+        {
+            return CheckStrByList(file.Extension, BannedExts) || CheckStrByList(file.FullPath, BannedWordsInPath);
+        }
+
+
+        public bool CheckStrByList(string stringToTest, List<string> bannedWords)
+        {
+            bool stringContains = false;
+            bannedWords.ForEach(bannedWord =>
+            {
+                if (stringToTest.Contains(bannedWord))
+                {
+                    stringContains = true;
+                }
+            });
+
+            return stringContains;
+        }
+
+        public void runConversionOfFile(IComicFile fileToProcess)
+        {
+            Thread convertionThread = new Thread(() => fileToProcess.ConvertSelfToZip());
+            convertionThread.Name = fileToProcess.FileName;
+            convertionThread.Priority = ThreadPriority.Highest;
             // run few convertions simultaneously 
+            // could be done more elegant
             if (this.converterThreads.Count() >= PathProcessor.LimitOfConversionAtOnce)
             {
                 while (true)
                 {
-                    for (var i = 0; i < this.converterThreads.Count(); i++)
+                    foreach (KeyValuePair<int, Thread> thread in this.converterThreads)
                     {
-                        if (this.converterThreads[i].ThreadState.ToString() == "Stopped")
+                        if (this.converterThreads[thread.Key].ThreadState.ToString() == "Stopped")
                         {
                             try
                             {
-                                this.converterThreads.Remove(i);
-                                Thread one = new Thread(() => fileToProcess.ConvertSelfToZip());
-                                one.Name = file.Name;
-                                one.Priority = ThreadPriority.Highest;
-                                this.converterThreads.Add(i, one);
-                                this.converterThreads[i].Start();
+                                this.converterThreads.Remove(thread.Key);
+                                this.AddThreadToStack(thread.Key, convertionThread);
                                 return;
                             }
                             catch (Exception e)
@@ -128,52 +133,16 @@
             }
             else
             {
-                Thread one = new Thread(() => fileToProcess.ConvertSelfToZip());
-                one.Name = file.Name;
-                this.converterThreads.Add(int.Parse(this.converterThreads.LongCount().ToString()), one);
-                this.converterThreads.Last().Value.Start();
+                this.AddThreadToStack(this.converterThreads.Count, convertionThread);
             }
         }
 
-        // checks if all convertion processes ended
-        public bool IfEndedAll()
+        public void AddThreadToStack(int threadId, Thread threadToAdd)
         {
-            var value = true;
-            foreach (var i in Enumerable.Range(0, this.converterThreads.Count() - 1))
-            {
-                if (this.converterThreads[i].ThreadState.ToString() == "Stopped")
-                {
-                    value &= true;
-                }
-                else
-                {
-                    value &= false;
-                }
-            }
-
-            return value;
-        }
-
-        public bool FilterFile(FileInfoDTO file, List<string> BannedExts, List<string> BannedWordsInPath)
-        {
-            foreach (var bannedExt in BannedExts)
-            {
-
-                if (file.Extension == bannedExt)
-                {
-                    return true;
-                }
-            }
-
-            foreach (var bannedWord in BannedWordsInPath)
-            {
-                if (file.FullPath.Contains(bannedWord))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            this.converterThreads.Add(threadId, threadToAdd);
+            this.converterThreads[threadId].Start();
         }
     }
+
+
 }
